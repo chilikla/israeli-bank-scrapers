@@ -197,6 +197,7 @@ async function getAccountTransactions(
 async function getAccountBalance(apiSiteUrl: string, page: Page, accountNumber: string) {
   const balanceAndCreditLimitUrl = `${apiSiteUrl}/current-account/composite/balanceAndCreditLimit?accountId=${accountNumber}&view=details&lang=he`;
   const balanceAndCreditLimit = await fetchGetWithinPage<BalanceAndCreditLimit>(page, balanceAndCreditLimitUrl);
+  debug('balanceAndCreditLimit raw response: %j', balanceAndCreditLimit);
 
   return {
     balance: balanceAndCreditLimit?.currentBalance,
