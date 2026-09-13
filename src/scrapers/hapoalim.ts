@@ -201,9 +201,11 @@ async function getAccountBalance(apiSiteUrl: string, page: Page, accountNumber: 
 
   return {
     balance: balanceAndCreditLimit?.currentBalance,
-    // The approved overdraft limit (מסגרת אשראי) — the API already returns it
-    // alongside the balance, this just stops discarding it.
-    cardFrame: balanceAndCreditLimit?.creditLimitAmount,
+    // The checking account's approved overdraft limit (מסגרת אשראי). Confusingly,
+    // `creditLimitAmount` is a *different*, separate credit-line product (0 unless
+    // one is arranged) — `currentAccountLimitsAmount` is the standard overdraft
+    // frame, verified against `withdrawalBalance = currentBalance + this`.
+    cardFrame: balanceAndCreditLimit?.currentAccountLimitsAmount,
   };
 }
 
