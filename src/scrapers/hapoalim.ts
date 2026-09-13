@@ -198,7 +198,12 @@ async function getAccountBalance(apiSiteUrl: string, page: Page, accountNumber: 
   const balanceAndCreditLimitUrl = `${apiSiteUrl}/current-account/composite/balanceAndCreditLimit?accountId=${accountNumber}&view=details&lang=he`;
   const balanceAndCreditLimit = await fetchGetWithinPage<BalanceAndCreditLimit>(page, balanceAndCreditLimitUrl);
 
-  return balanceAndCreditLimit?.currentBalance;
+  return {
+    balance: balanceAndCreditLimit?.currentBalance,
+    // The approved overdraft limit (מסגרת אשראי) — the API already returns it
+    // alongside the balance, this just stops discarding it.
+    cardFrame: balanceAndCreditLimit?.creditLimitAmount,
+  };
 }
 
 async function fetchAccountData(page: Page, baseUrl: string, options: ScraperOptions) {
@@ -229,7 +234,7 @@ async function fetchAccountData(page: Page, baseUrl: string, options: ScraperOpt
     debug('getting information for account %s', account.accountNumber);
     const accountNumber = `${account.bankNumber}-${account.branchNumber}-${account.accountNumber}`;
 
-    const balance = await getAccountBalance(apiSiteUrl, page, accountNumber);
+    const { balance, cardFrame } = await getAccountBalance(apiSiteUrl, page, accountNumber);
     const txns = await getAccountTransactions(
       baseUrl,
       apiSiteUrl,
@@ -244,6 +249,7 @@ async function fetchAccountData(page: Page, baseUrl: string, options: ScraperOpt
     accounts.push({
       accountNumber,
       balance,
+      cardFrame,
       txns,
     });
   }
